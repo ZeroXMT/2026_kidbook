@@ -27,9 +27,7 @@ graph TD
     %% Фильмы
     FILMS -->|подвид| AN["🎞️ Мультфильм<br/>(Q202866)"]
     FILMS -->|подвид| DOC["📹 Документальный фильм<br/>(Q93204)"]
-    FILMS -->|использует| VFX["✨ Спецэффекты<br/>(Q180985)"]
     FILMS -.->|часть| CIN["🎥 Кинематограф<br/>(Q5398426)"]
-    AN -->|использует| VFX
     DOC -.->|развивает| ML
 
     %% Музыка
@@ -41,7 +39,7 @@ graph TD
     CM -->|является| MG
     SONG -.->|звучит в| FILMS
     COMP -->|пишет| SONG
-    COMP -->|пишет| ST["🎧 Саундтрек<br/>(Q492264)"]
+    COMP -->|пишет| ST["🎧 Саундтрек<br/>(Q217199)"]
     ST -.->|звучит в| FILMS
     ST -.->|звучит в| GAMES
 
@@ -53,6 +51,7 @@ graph TD
     FILMS -->|руководит| DIR["🎬 Режиссёр<br/>(P57)"]
     FILMS -->|использует| MONT["✂️ Монтаж<br/>(Q237893)"]
     FILMS -->|использует| SFX["💥 Спецэффекты<br/>(Q8317)"]
+    AN -->|использует| SFX
     DIR -->|работает с| MONT
     SCR -.->|основа для| DIR
 
@@ -71,7 +70,7 @@ graph TD
     classDef general fill:#fff9c4,stroke:#f9a825
 
     class GAMES,BG,EG,ES,GM games
-    class FILMS,AN,DOC,VFX,CIN,MT films
+    class FILMS,AN,DOC,CIN,MT films
     class MUSIC,MI,MG,CM,SONG,COMP,ST music
     class ENT,ML general
     class SCR,DIR,MONT,SFX films
@@ -94,25 +93,24 @@ graph TD
 | 3 | Образовательная игра | [Q1141778](https://www.wikidata.org/wiki/Q1141778) | Игры | `educational_game.md` |
 | 4 | Киберспорт | [Q300920](https://www.wikidata.org/wiki/Q300920) | Игры | `esports.md` |
 | 5 | Геймификация | [Q1145661](https://www.wikidata.org/wiki/Q1145661) | Игры | `gamification.md` |
-| 6 | Фильм | [Q11424](https://www.wikidata.org/wiki/Q11424) | Фильмы | `film.md` |
+| 6 | Фильм | [Q11424](https://www.wikidata.org/wiki/Q11424) | Фильмы | `movie.md` |
 | 7 | Мультфильм | [Q202866](https://www.wikidata.org/wiki/Q202866) | Фильмы | `animation.md` |
 | 8 | Документальный фильм | [Q93204](https://www.wikidata.org/wiki/Q93204) | Фильмы | `documentary.md` |
 | 9 | Кинематограф | [Q5398426](https://www.wikidata.org/wiki/Q5398426) | Фильмы | `cinema.md` |
-| 10 | Спецэффекты | [Q180985](https://www.wikidata.org/wiki/Q180985) | Фильмы | `vfx.md` |
-| 11 | Музыка | [Q638](https://www.wikidata.org/wiki/Q638) | Музыка | `music.md` |
-| 12 | Музыкальный инструмент | [Q34379](https://www.wikidata.org/wiki/Q34379) | Музыка | `musical_instrument.md` |
-| 13 | Музыкальный жанр | [Q188451](https://www.wikidata.org/wiki/Q188451) | Музыка | `musical_genre.md` |
-| 14 | Классическая музыка | [Q9730](https://www.wikidata.org/wiki/Q9730) | Музыка | `classical_music.md` |
-| 15 | Песня | [Q7366](https://www.wikidata.org/wiki/Q7366) | Музыка | `song.md` |
-| 16 | Развлечение | [Q173799](https://www.wikidata.org/wiki/Q173799) | Общее | `entertainment.md` |
-| 17 | Медиаграмотность | [Q1004817](https://www.wikidata.org/wiki/Q1004817) | Общее | `media_literacy.md` |
-| 18 | Кинотеатр | [Q41253](https://www.wikidata.org/wiki/Q41253) | Фильмы | `movie_theater.md` |
-| 19 | Композитор | [Q36834](https://www.wikidata.org/wiki/Q36834) | Музыка | `composer.md` |
-| 20 | Саундтрек | [Q492264](https://www.wikidata.org/wiki/Q492264) | Музыка | `soundtrack.md` |
-| 21 | Монтаж в кино | [Q237893](https://www.wikidata.org/wiki/Q237893) | Фильмы | `montage.md` |
-| 22 | Спецэффекты (практические) | [Q8317](https://www.wikidata.org/wiki/Q8317) | Фильмы | `special_effects.md` |
-| 23 | Сценарий | [Q103076](https://www.wikidata.org/wiki/Q103076) | Фильмы | `script.md` |
-| 24 | Режиссёр | [P57](https://www.wikidata.org/wiki/Property:P57) | Фильмы | `director.md` |
+| 10 | Музыка | [Q638](https://www.wikidata.org/wiki/Q638) | Музыка | `music.md` |
+| 11 | Музыкальный инструмент | [Q34379](https://www.wikidata.org/wiki/Q34379) | Музыка | `musical_instrument.md` |
+| 12 | Музыкальный жанр | [Q188451](https://www.wikidata.org/wiki/Q188451) | Музыка | `musical_genre.md` |
+| 13 | Классическая музыка | [Q9730](https://www.wikidata.org/wiki/Q9730) | Музыка | `classical_music.md` |
+| 14 | Песня | [Q7366](https://www.wikidata.org/wiki/Q7366) | Музыка | `song.md` |
+| 15 | Развлечение | [Q173799](https://www.wikidata.org/wiki/Q173799) | Общее | `entertainment.md` |
+| 16 | Медиаграмотность | [Q1004817](https://www.wikidata.org/wiki/Q1004817) | Общее | `media_literacy.md` |
+| 17 | Кинотеатр | [Q41253](https://www.wikidata.org/wiki/Q41253) | Фильмы | `movie_theater.md` |
+| 18 | Композитор | [Q36834](https://www.wikidata.org/wiki/Q36834) | Музыка | `composer.md` |
+| 19 | Саундтрек | [Q217199](https://www.wikidata.org/wiki/Q217199) | Музыка | `soundtrack.md` |
+| 20 | Монтаж в кино | [Q237893](https://www.wikidata.org/wiki/Q237893) | Фильмы | `montage.md` |
+| 21 | Спецэффекты в кино | [Q8317](https://www.wikidata.org/wiki/Q8317) | Фильмы | `special_effects.md` |
+| 22 | Сценарий | [Q103076](https://www.wikidata.org/wiki/Q103076) | Фильмы | `script.md` |
+| 23 | Режиссёр | [P57](https://www.wikidata.org/wiki/Property:P57) | Фильмы | `director.md` |
 
 ## Источники знаний
 
