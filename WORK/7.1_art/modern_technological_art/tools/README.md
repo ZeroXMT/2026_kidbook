@@ -5,7 +5,6 @@
 ## Запуск
 
 ```bash
-cd WEB/7.1_art/modern_technological_art
 python3 tools/visualize_links.py
 open tools/graph.html
 ```

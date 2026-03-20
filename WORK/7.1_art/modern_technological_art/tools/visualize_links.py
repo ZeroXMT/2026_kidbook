@@ -9,8 +9,9 @@ import os, re, json
 from pathlib import Path
 from urllib.parse import urlparse
 
-BASE = Path(__file__).parent.parent.parent.parent
-ARTICLES_DIR = BASE / "WEB" / "7.1_art" / "modern_technological_art" / "articles"
+BASE = Path(__file__).parent.parent.parent.parent.parent
+SECTION_DIR = BASE / "WEB" / "7.1_art" / "modern_technological_art"
+ARTICLES_DIR = SECTION_DIR / "articles"
 OUTPUT = Path(__file__).parent / "graph.html"
 
 PORTAL_LABELS = {
@@ -155,7 +156,7 @@ def process_file(filepath, from_id):
             add_edge(from_id, nid, "external", label)
 
 # process README
-process_file(BASE / "README.md", "README")
+process_file(SECTION_DIR / "README.md", "README")
 
 # process all articles
 for f in sorted(ARTICLES_DIR.glob("*.md")):
@@ -252,6 +253,32 @@ HTML = """<!DOCTYPE html>
   .node circle { cursor: pointer; stroke-width: 1.5px; }
   .node text   { pointer-events: none; font-size: 11px; fill: #cbd5e1;
                  text-shadow: 0 1px 3px #0f1117, 0 0 8px #0f1117; }
+
+  /* ── animations ── */
+  @keyframes readme-pulse {
+    0%   { stroke-width: 2px;  stroke-opacity: 0.7; r: 22; }
+    50%  { stroke-width: 6px;  stroke-opacity: 1;   r: 25; }
+    100% { stroke-width: 2px;  stroke-opacity: 0.7; r: 22; }
+  }
+  .node.readme-node circle { animation: readme-pulse 3s ease-in-out infinite; }
+
+  @keyframes edge-flow {
+    from { stroke-dashoffset: 24; }
+    to   { stroke-dashoffset: 0; }
+  }
+  .link.internal.flow-on {
+    stroke-dasharray: 8 4 !important;
+    stroke-opacity: 0.8 !important;
+    animation: edge-flow 1.4s linear infinite;
+  }
+
+  #btn-orbit {
+    width: 100%; padding: 7px; background: #252840; border: 1px solid #3a3f5c;
+    border-radius: 6px; color: #94a3b8; font-size: 12px; cursor: pointer;
+    text-align: left; margin-bottom: 8px;
+  }
+  #btn-orbit.active { border-color: #06B6D4; color: #06B6D4; }
+
   .node.dimmed circle { opacity: 0.12; }
   .node.dimmed text   { opacity: 0.08; }
   .node.highlighted  circle { stroke: #fff    !important; stroke-width: 2.5px; }
@@ -301,6 +328,15 @@ HTML = """<!DOCTYPE html>
     <label class="toggle-row" style="margin-top:8px">
       <input type="checkbox" id="tog-readme-path">
       <span class="dot" style="background:#F59E0B"></span> Через README
+    </label>
+  </div>
+
+  <div class="section">
+    <h2>Анимация</h2>
+    <button id="btn-orbit">⟳ Орбитальное вращение</button>
+    <label class="toggle-row">
+      <input type="checkbox" id="tog-flow">
+      <span class="dot" style="background:#6366f1"></span> Поток по рёбрам
     </label>
   </div>
 
@@ -536,7 +572,7 @@ function restart() {
     .data(visNodes, d => d.id)
     .join(
       enter => {
-        const g = enter.append("g").attr("class", "node").call(
+        const g = enter.append("g").attr("class", d => `node${d.type === "readme" ? " readme-node" : ""}`).call(
           d3.drag()
             .on("start", dragstart)
             .on("drag",  dragged)
@@ -880,6 +916,69 @@ document.getElementById("tog-readme-path").addEventListener("change", e => { pat
 document.getElementById("tog-labels"     ).addEventListener("change", e => {
   showLabels = e.target.checked;
   if (nodeSel) nodeSel.select("text").style("display", showLabels ? null : "none");
+});
+
+// ── orbital animation ──────────────────────────────────────────────────────
+let orbitActive = false;
+let orbitAngle1 = 0;   // ring 1 offset (clockwise)
+let orbitAngle2 = 0;   // ring 2 offset (counter-clockwise)
+let orbitLast   = null;
+let orbitRAF    = null;
+let flowEdges   = false;
+
+function orbitStep(ts) {
+  if (!orbitActive) return;
+  if (orbitLast == null) orbitLast = ts;
+  const dt = Math.min(ts - orbitLast, 50);
+  orbitLast = ts;
+
+  orbitAngle1 += 0.00014 * dt;   // ~45 s per revolution
+  orbitAngle2 -= 0.00008 * dt;   // ~78 s, opposite direction
+
+  const { width, height } = document.getElementById("canvas").getBoundingClientRect();
+  const cx = width / 2, cy = height / 2;
+
+  DATA.nodes.forEach(n => {
+    if (n.type !== "article") return;
+    const ring = nodeRing(n);
+    const base = PORTAL_ANGLE[n.portal] ?? 0;
+    const off  = ring === 1 ? orbitAngle1 : orbitAngle2;
+    const r    = RING_R[ring];
+    n._tx = cx + Math.cos(base + off) * r;
+    n._ty = cy + Math.sin(base + off) * r;
+  });
+
+  simulation.force("sector-x").x(d => d._tx ?? cx);
+  simulation.force("sector-y").y(d => d._ty ?? cy);
+  if (simulation.alpha() < 0.08) simulation.alpha(0.08).restart();
+
+  orbitRAF = requestAnimationFrame(orbitStep);
+}
+
+document.getElementById("btn-orbit").addEventListener("click", () => {
+  orbitActive = !orbitActive;
+  const btn = document.getElementById("btn-orbit");
+  if (orbitActive) {
+    btn.textContent = "⏹ Остановить вращение";
+    btn.classList.add("active");
+    orbitLast = null;
+    orbitRAF = requestAnimationFrame(orbitStep);
+  } else {
+    btn.textContent = "⟳ Орбитальное вращение";
+    btn.classList.remove("active");
+    if (orbitRAF) { cancelAnimationFrame(orbitRAF); orbitRAF = null; }
+    // snap back to original sector positions
+    const { width, height } = document.getElementById("canvas").getBoundingClientRect();
+    computeTargets(width / 2, height / 2);
+    simulation.force("sector-x").x(d => d._tx ?? width / 2);
+    simulation.force("sector-y").y(d => d._ty ?? height / 2);
+    simulation.alpha(0.3).restart();
+  }
+});
+
+document.getElementById("tog-flow").addEventListener("change", e => {
+  flowEdges = e.target.checked;
+  if (linkSel) linkSel.classed("flow-on", l => flowEdges && l.type === "internal");
 });
 
 // ── stats bar ──────────────────────────────────────────────────────────────
